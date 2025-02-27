@@ -12,6 +12,8 @@ const TimeLogSchema = new Schema(
     week: { type: Number, required: true },
     month: { type: Number, required: true },
     dayOff: { type: Number, required: true },
+    sickDay: { type: Number, required: true },
+    holiday: { type: Number, required: true },
     actualTime: { type: Number, required: true },
     targetValue: { type: Number, required: true },
   },
