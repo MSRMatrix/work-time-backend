@@ -9,11 +9,6 @@ export const validateRequest = (req, res, next) => {
 };
 
 export const userValidator = [
-  body("username")
-    .notEmpty()
-    .withMessage("Username is required!")
-    .trim()
-    .escape(),
   body("password")
     .notEmpty()
     .withMessage("Password is required!")
@@ -37,38 +32,13 @@ export const userValidator = [
     .escape(),
 ];
 
-export const listValidator = [
-  body("name")
-    .notEmpty()
-    .withMessage("Name is required!")
-    .trim()
-    .escape(),
-    body("description")
-    .trim()
-    .escape(),
+export const timelogValidator = [
+  
 ];
 
-export const taskValidator = [
-  body("task")
-    .notEmpty()
-    .withMessage("Task is required!")
-    .trim()
-    .escape(),
-];
 
 export const userUpdateValidator = (fieldsToUpdate) => {
   const validators = [];
-
-  if (fieldsToUpdate.includes("username")) {
-    validators.push(
-      body("username")
-        .if(body("username").exists({ checkFalsy: true }))
-        .trim()
-        .isString()
-        .withMessage("Der Benutzername muss ein String sein.")
-        .escape()
-    );
-  }
 
   if (fieldsToUpdate.includes("password")) {
     validators.push(
@@ -98,48 +68,8 @@ export const userUpdateValidator = (fieldsToUpdate) => {
   return validators;
 };
 
-
-export const taskUpdateValidator = (fieldsToUpdate) => {
+export const timeLogUpdateValidator = (fieldsToUpdate) => {
   const validators = [];
-
-  if (fieldsToUpdate.includes("task")) {
-    validators.push(
-      body("task")
-        .if(body("task").exists({ checkFalsy: true }))
-        .trim()
-        .isString()
-        .notEmpty()
-        .escape()
-    );
-  }
-
-  return validators;
-};
-
-export const listUpdateValidator = (fieldsToUpdate) => {
-  const validators = [];
-
-  if (fieldsToUpdate.includes("name")) {
-    validators.push(
-      body("name")
-        .if(body("name").exists({ checkFalsy: true }))
-        .trim()
-        .isString()
-        .notEmpty()
-        .escape()
-    );
-  }
-
-  if (fieldsToUpdate.includes("description")) {
-    validators.push(
-      body("description")
-        .if(body("description").exists({ checkFalsy: true }))
-        .trim()
-        .isString()
-        .notEmpty()
-        .escape()
-    );
-  }
 
   return validators;
 };

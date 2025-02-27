@@ -1,7 +1,6 @@
 import express from "express"
 import UserRouter from "./UserRouter.js"
-import ListRouter from "./ListRouter.js"
-import TaskRouter from "./TaskRouter.js"
+import TimeLogRouter from "./TimeLogRouter.js"
 import { authorize } from "../controller/UserController.js"
 
 const router = express.Router()
@@ -10,9 +9,6 @@ router
 .use("/user", UserRouter)
 
 router
-.use("/list", authorize(["User"]), ListRouter)
-
-router
-.use("/task", authorize(["User"]), TaskRouter)
+.use("/timelog", authorize(["User"]), TimeLogRouter)
 
 export default router;
