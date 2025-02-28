@@ -6,16 +6,21 @@ const TimeSheedDb = mongoose.connection.useDb(Database);
 
 const TimeLogSchema = new Schema(
   {
-    hours: { type: Number, required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    day: { type: Number, required: true },
-    week: { type: Number, required: true },
-    month: { type: Number, required: true },
-    dayOff: { type: Number, required: true },
-    sickDay: { type: Number, required: true },
-    holiday: { type: Number, required: true },
-    actualTime: { type: Number, required: true },
-    targetValue: { type: Number, required: true },
+    month: [
+      {
+        date: { type: Number, required: true, required: true },
+        workTime: { type: Number },
+        clients: { type: Number },
+        breakTime: { type: Number},
+        totalTime: { type: Number},
+      },
+    ],
+    dayOff: { type: Number },
+    sickDay: { type: Number },
+    holiday: { type: Number },
+    actualTime: { type: Number },
+    targetValue: { type: Number },
   },
   { versionKey: false, strictQuery: true }
 );
