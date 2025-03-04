@@ -6,21 +6,22 @@ const TimeSheedDb = mongoose.connection.useDb(Database);
 
 const TimeLogSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    // userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     month: [
       {
-        date: { type: Number, required: true, required: true },
-        workTime: { type: Number },
-        clients: { type: Number },
-        breakTime: { type: Number},
-        totalTime: { type: Number},
+        date: { type: String, required: true },
+        startWork:  { type: String },
+        endWork:  { type: String },
+        startBreak:  { type: String },
+        endBreak:  { type: String },
+        totalTime: { type: String },
       },
     ],
-    dayOff: { type: Number },
-    sickDay: { type: Number },
-    holiday: { type: Number },
-    actualTime: { type: Number },
-    targetValue: { type: Number },
+    dayOff: { type: String },
+    sickDay: { type: String },
+    holiday: { type: String },
+    actualTime: { type: String },
+    targetValue: { type: String },
   },
   { versionKey: false, strictQuery: true }
 );
@@ -31,6 +32,6 @@ TimeLogSchema.methods.toJSON = function () {
   return log;
 };
 
-const TimeLog = TimeSheedDb.model("TimeLog", TimeLog);
+const TimeLog = TimeSheedDb.model("TimeLog", TimeLogSchema);
 
 export default TimeLog;

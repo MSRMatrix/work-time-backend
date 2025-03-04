@@ -8,7 +8,10 @@ const router = express.Router()
 router
 .use("/user", UserRouter)
 
+// router
+// .use("/timelog", authorize(["User"]), TimeLogRouter)
+
 router
-.use("/timelog", authorize(["User"]), TimeLogRouter)
+.use("/timelog", TimeLogRouter)
 
 export default router;
