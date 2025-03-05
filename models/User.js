@@ -9,12 +9,11 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
-    timeLog: [{ type: mongoose.Schema.Types.ObjectId, ref: "TimeLog" }],
+    totalHours: { type: Number, default: 0 },
+    timeLog: { type: mongoose.Schema.Types.ObjectId, ref: "TimeLog" },
   },
   { versionKey: false, strictQuery: true }
 );
-
-const User = TimeSheedDb.model("User", UserSchema);
 
 UserSchema.methods.toJSON = function () {
   const user = this.toObject();
@@ -24,8 +23,9 @@ UserSchema.methods.toJSON = function () {
   return user;
 };
 
-export default User;
+const User = TimeSheedDb.model("User", UserSchema);
 
+export default User;
 
 // import mongoose, { Schema, model } from "mongoose";
 

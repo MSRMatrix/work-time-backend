@@ -24,6 +24,7 @@ export const getUserData = async (req, res, next) => {
 
     res.status(200).json({
       user: user,
+      // timelog: timelog
     });
   } catch (error) {
     next(error);
@@ -33,33 +34,20 @@ export const getUserData = async (req, res, next) => {
 export const createUser = async (req, res, next) => {
   try {
     const email = req.body.email.trim().toLowerCase();
-    const password = req.body.password.trim();
 
     if (await User.findOne({ email: email })) {
       return res.status(404).json({ message: "Email already exist!" });
     }
 
-    const missingFields = [];
-    if (password.length < 8) missingFields.push("password is to short");
-    if (!email) missingFields.push("email");
-
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        message: `The following informations are missing: ${missingFields.join(
-          ", "
-        )}`,
-      });
-    }
-
-    req.body.password = await hashPassword(req.body.password);
+    const password = (req.body.password = await hashPassword(
+      req.body.password.trim()
+    ));
 
     const user = await User.create({
       email: email,
-      password: req.body.password,
+      password: password,
     });
-    const topic = `Profile created`;
 
-    mailerFunction(user, topic, message);
     res.status(201).json({ message: "User successfully created", user: user });
   } catch (error) {
     next(error);
@@ -83,7 +71,6 @@ export const deleteUser = async (req, res, next) => {
     if (!checkPassword) {
       return res.status(401).json({ message: "Wrong password" });
     }
-
 
     // Needs to delete the timeLog
 
@@ -138,21 +125,21 @@ export const updateUser = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const searchEmail = await Model.findOne({ email });
-    
+    const searchEmail = await User.findOne({ email });
+
     if (!searchEmail) {
       const message = "Email-Adresse wurde nicht gefunden!";
-    return  res.status(404).json({message})
+      return res.status(404).json({ message });
     }
-    
+
     const passwordCompare = await comparePassword(
       password,
       searchEmail.password
     );
 
     if (!passwordCompare) {
-      const message = "Passwort stimmt nicht!"
-      res.status(404).json({message})
+      const message = "Passwort stimmt nicht!";
+      res.status(404).json({ message });
     }
 
     const token = issueJwt(searchEmail);

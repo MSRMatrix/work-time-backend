@@ -12,8 +12,8 @@ export async function dataFunction(req, res, next){
       }
       const decodedToken = jwt.verify(token, secretKey);
   
-      const testId = decodedToken.id;
-      const data = await User.findOne({ _id: testId });
+      const userId = decodedToken.id;
+      const data = await User.findOne({ _id: userId });
   
       return data;
   }

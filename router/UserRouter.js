@@ -5,34 +5,8 @@ import { userUpdateValidator, userValidator, validateRequest } from "../middlewa
 
 const router = express.Router()
 
-// router
-// .route("/", authorize(["User"])).get(getUserData)
-
-// router
-// .route("/").post(userValidator, validateRequest , createUser)
-
-// router
-// .route("/login").post(login);
-
-// router
-// .route("/logout").post(logout);
-
-// router
-// .route("/", authorize(["User"])).delete(deleteUser)
-
-// router
-// .route("/", authorize(["User"])).patch(userUpdateValidator([
-//     "email",
-//     "password",
-//   ]), validateRequest ,updateUser)
-
-// router
-// .route("/get-data").get(getData)
-
-
 router
-
-.route("/").get(getUserData)
+.route("/", authorize(["User"])).get(getUserData)
 
 router
 .route("/").post(userValidator, validateRequest , createUser)
@@ -44,16 +18,42 @@ router
 .route("/logout").post(logout);
 
 router
-.route("/").delete(deleteUser)
+.route("/", authorize(["User"])).delete(deleteUser)
 
 router
-.route("/").patch(userUpdateValidator([
+.route("/", authorize(["User"])).patch(userUpdateValidator([
     "email",
     "password",
   ]), validateRequest ,updateUser)
 
 router
 .route("/get-data").get(getData)
+
+
+// router
+
+// .route("/").get(getUserData)
+
+// router
+// .route("/").post(userValidator, validateRequest , createUser)
+
+// router
+// .route("/login").post(login);
+
+// router
+// .route("/logout").post(logout);
+
+// router
+// .route("/").delete(deleteUser)
+
+// router
+// .route("/").patch(userUpdateValidator([
+//     "email",
+//     "password",
+//   ]), validateRequest ,updateUser)
+
+// router
+// .route("/get-data").get(getData)
 
 
 export default router;

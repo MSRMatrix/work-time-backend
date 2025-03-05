@@ -1,6 +1,6 @@
 import express from "express"
 import { timeLogUpdateValidator, timelogValidator, validateRequest } from "../middlewares/validator/validatorFunctions.js"
-import { createTimelog } from "../controller/timeLogController.js";
+import { createTimelog, deleteTimelog } from "../controller/timeLogController.js";
 
 const router = express.Router()
 
@@ -10,8 +10,8 @@ router
 // router
 // .route("/").post(timelogValidator, validateRequest ,)
 
-// router
-// .route("/").delete()
+router
+.route("/").delete(deleteTimelog)
 
 // router
 // .route("/").patch(timeLogUpdateValidator(["", ""]), validateRequest ,updateList)
