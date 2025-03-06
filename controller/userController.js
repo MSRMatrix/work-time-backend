@@ -4,6 +4,7 @@ import { issueJwt } from "../helpers/jwt.js";
 import jwt from "jsonwebtoken";
 import { mailerFunction } from "../helpers/nodemailer.js";
 import { dataFunction } from "../helpers/dataFunction.js";
+import TimeLog from "../models/TimeLog.js";
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -20,11 +21,11 @@ export const getUserData = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // timelog Data
+    const timelog = await TimeLog.findById(user.timeLog)
 
     res.status(200).json({
       user: user,
-      // timelog: timelog
+      timelog: timelog
     });
   } catch (error) {
     next(error);
@@ -87,6 +88,35 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+export const editTime = async (req, res, next) => {
+  try {
+    const user = await dataFunction(req, res, next);
+    const sickDay = req.body.sickDay
+    const dayOff = req.body.dayOff
+    const holiday = req.body.holiday
+    const totalHours = req.body.totalHours
+
+    if(sickDay){
+      user.sickDay = sickDay;
+    }
+    if(dayOff){
+      user.dayOff = dayOff;
+    }
+    if(holiday){
+      user.holiday = holiday;
+    }
+    if(totalHours){
+      user.totalHours = totalHours;
+    }
+
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);
@@ -113,7 +143,6 @@ export const updateUser = async (req, res, next) => {
       const message = `Your email was updated!`;
       mailerFunction(user, topic, message);
     }
-
     await user.save();
 
     res.status(200).json({ message: "User successfully updated", user: user });

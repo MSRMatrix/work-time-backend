@@ -10,13 +10,15 @@ const TimeLogSchema = new Schema(
     month: [
       {
         date: { type: String, required: true },
-        day: {type: String},
-        startWork:  { type: String },
-        endWork:  { type: String },
-        startBreak:  { type: String },
-        endBreak:  { type: String },
+        day: { type: String },
+        startWork: { type: String },
+        endWork: { type: String },
+        startBreak: { type: String },
+        endBreak: { type: String },
         totalTime: { type: String },
-        disable: { type: Boolean, default: false}
+        dayOff: { type: Boolean, default: false },
+        sickDay: { type: Boolean, default: false },
+        holiday: { type: Boolean, default: false },
       },
     ],
     dayOff: { type: String },

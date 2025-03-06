@@ -21,9 +21,6 @@ export const createTimelog = async (req, res, next) => {
     const newTimeLog = new TimeLog({
       userId: user._id,
       month: req.body.monthData,
-      dayOff: dayOff || "0",
-      sickDay: sickDay || "0",
-      holiday: holiday || "0",
       actualTime: actualTime || "0",
       targetValue: targetValue || "0",
       disable: false
@@ -40,12 +37,42 @@ export const createTimelog = async (req, res, next) => {
   }
 };
 
-export const updateTimelog = async (req, res, next) => {
+export const checkFunction = async (req, res, next) => {
   try {
+    const { name, date } = req.body;
+    
+    const user = await dataFunction(req, res, next);
+    const timelog = await TimeLog.findById(user.timeLog);
+
+    if (!timelog) {
+      return res.status(404).json({ message: "Timelog nicht gefunden" });
+    }
+
+    const dayEntry = timelog.month.find((item) => item.date === date);
+
+    if (!dayEntry) {
+      return res.status(404).json({ message: "Datum nicht gefunden" });
+    }
+
+    if (["dayOff", "sickDay", "holiday"].includes(name)) {
+      dayEntry[name] = !dayEntry[name]; 
+      user[name] = dayEntry[name] ? user[name] + 1 : user[name] -  1
+    } else {
+      return res.status(400).json({ message: "Ungültiger Toggle-Name" });
+    }
+
+    // Mongoose über Änderung informieren
+    timelog.markModified("month");
+    await timelog.save();
+    await user.save()
+
+    res.status(200).json(timelog);
   } catch (error) {
     next(error);
   }
 };
+
+
 
 export const deleteTimelog = async (req, res, next) => {
   try {
