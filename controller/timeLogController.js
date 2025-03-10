@@ -37,6 +37,21 @@ export const createTimelog = async (req, res, next) => {
   }
 };
 
+export const updateTimelog = async (req, res, next) => {
+  try {
+    const user = await dataFunction(req, res, next);
+    const {newLog} = req.body;
+    const timelog = await TimeLog.findById(user.timeLog)
+    timelog.set(newLog);
+
+    await timelog.save();
+
+    res.status(200).json({message: "Timelog updated!"});
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const checkFunction = async (req, res, next) => {
   try {
     const { name, date } = req.body;
@@ -72,6 +87,21 @@ export const checkFunction = async (req, res, next) => {
   }
 };
 
+
+export const actualTimeCalculator = async (req, res, next) => {
+  try {
+    const { data } = req.body;
+    const user = await dataFunction(req, res, next);
+    const timelog = await TimeLog.findById(user.timeLog);
+
+    await timelog.save();
+    await user.save()
+
+    res.status(200).json(timelog);
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 export const deleteTimelog = async (req, res, next) => {

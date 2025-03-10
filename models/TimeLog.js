@@ -24,8 +24,8 @@ const TimeLogSchema = new Schema(
     dayOff: { type: String },
     sickDay: { type: String },
     holiday: { type: String },
-    actualTime: { type: String },
-    targetValue: { type: String },
+    actualTime: { type: Number },
+    targetValue: { type: Number },
   },
   { versionKey: false, strictQuery: true }
 );

@@ -91,10 +91,7 @@ export const deleteUser = async (req, res, next) => {
 export const editTime = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);
-    const sickDay = req.body.sickDay
-    const dayOff = req.body.dayOff
-    const holiday = req.body.holiday
-    const totalHours = req.body.totalHours
+    const {sickDay, dayOff, holiday, totalHours} = req.body
 
     if(sickDay){
       user.sickDay = sickDay;
