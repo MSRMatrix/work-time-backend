@@ -10,41 +10,95 @@ const secretKey = process.env.JWT_SECRET;
 
 export const createTimelog = async (req, res, next) => {
   try {
-    const { month, year, dayOff, sickDay, holiday, actualTime, targetValue } =
-      req.body;
+    const { monthData, actualTime, targetValue } = req.body;
 
+    // Hole den Benutzer
     const user = await dataFunction(req, res, next);
+
+    // Fall 1: Wenn der Benutzer bereits ein TimeLog hat
     if (user.timeLog) {
-      await TimeLog.findByIdAndDelete({ _id: user.timeLog });
+      const timelog = await TimeLog.findById(user.timeLog);
+
+      // Wenn das TimeLog bereits existiert, fügen wir die neuen Monate hinzu
+      if (timelog) {
+        // Hinzufügen der neuen Monate
+        timelog.month.push(...monthData);
+
+        await timelog.save();
+
+        return res.status(200).json(timelog);
+      }
     }
 
+    // Fall 2: Wenn der Benutzer kein TimeLog hat, erstellen wir ein neues
     const newTimeLog = new TimeLog({
       userId: user._id,
-      month: req.body.monthData,
-      actualTime: actualTime || "0",
-      targetValue: targetValue || "0",
-      disable: false
+      month: monthData,  // Speichern der neuen Monate
+      actualTime: actualTime || "00S 00M",
+      targetValue: targetValue || "00S 00M",
     });
 
+    // Setze das neue TimeLog beim Benutzer
     user.timeLog = newTimeLog._id;
 
-    await user.save();
     await newTimeLog.save();
+    await user.save();
 
-    res.status(201).json(newTimeLog);
+    return res.status(201).json(newTimeLog);
+
   } catch (error) {
     next(error);
   }
 };
 
+
+
+function splitTime(result, user, timelog) {
+
+  const userHours = user.totalHours.split(" ");
+  const timelogHours = timelog.actualTime.split(" ");
+
+  let totalStart = parseFloat(userHours[0]) + result.first;
+  let totalEnd = parseFloat(userHours[1]) + result.end;
+
+  let actualStart = parseFloat(timelogHours[0]) + result.first;
+  let actualEnd = parseFloat(timelogHours[1]) + result.end;
+
+  if (totalEnd >= 60) {
+    totalStart += Math.floor(totalEnd / 60);
+    totalEnd = totalEnd % 60;
+  }
+
+  if (actualEnd >= 60) {
+    actualStart += Math.floor(actualEnd / 60);
+    actualEnd = actualEnd % 60;
+  }
+
+  const formatTime = (time) => (time < 10 ? `0${time}` : `${time}`);
+
+  const splitResult = {
+    total: `${formatTime(totalStart)}S ${formatTime(totalEnd)}M`,
+    actual: `${formatTime(actualStart)}S ${formatTime(actualEnd)}M`,
+  };
+
+  return splitResult;
+}
+
+
 export const updateTimelog = async (req, res, next) => {
   try {
+    
+    const {newLog, result} = req.body;
     const user = await dataFunction(req, res, next);
-    const {newLog} = req.body;
-    const timelog = await TimeLog.findById(user.timeLog)
+    const timelog = await TimeLog.findById(user.timeLog);
+    const splitResult = splitTime(result, user, timelog);
+
     timelog.set(newLog);
+    user.totalHours = splitResult.total;
+    timelog.actualTime = splitResult.actual;
 
     await timelog.save();
+    await user.save()
 
     res.status(200).json({message: "Timelog updated!"});
   } catch (error) {
@@ -65,6 +119,37 @@ export const checkFunction = async (req, res, next) => {
 
     const dayEntry = timelog.month.find((item) => item.date === date);
 
+
+    const totalStart = parseFloat(user.totalHours.split(" ")[0]);
+    const totalEnd = parseFloat(user.totalHours.split(" ")[1]);
+
+    const timeStart = parseFloat(dayEntry.totalTime.split(" ")[0]);
+    const timeEnd = parseFloat(dayEntry.totalTime.split(" ")[1]);
+
+    let newStart = totalStart - timeStart;
+    let newEnd = totalEnd - timeEnd;
+
+if (newEnd < 0) {
+  newStart -= 1;
+  newEnd += 60;
+}
+
+const formatTime = (time) => (time < 10 ? `0${time}` : `${time}`);
+
+
+
+let result = `${formatTime(newStart)}S ${formatTime(newEnd)}M`;
+
+if(isNaN(newStart) || isNaN(newEnd)){
+  result = user.totalHours;
+}
+
+    dayEntry.startWork = ""
+    dayEntry.endWork = ""
+    dayEntry.startBreak = ""
+    dayEntry.endBreak = ""
+    dayEntry.totalTime = ""
+
     if (!dayEntry) {
       return res.status(404).json({ message: "Datum nicht gefunden" });
     }
@@ -76,7 +161,7 @@ export const checkFunction = async (req, res, next) => {
       return res.status(400).json({ message: "Ungültiger Toggle-Name" });
     }
 
-    // Mongoose über Änderung informieren
+    user.totalHours = result;
     timelog.markModified("month");
     await timelog.save();
     await user.save()
@@ -87,24 +172,28 @@ export const checkFunction = async (req, res, next) => {
   }
 };
 
-
-export const actualTimeCalculator = async (req, res, next) => {
+export const deleteTimelog = async (req, res, next) => {
   try {
-    const { data } = req.body;
     const user = await dataFunction(req, res, next);
-    const timelog = await TimeLog.findById(user.timeLog);
 
-    await timelog.save();
-    await user.save()
+    if (!user) {
+      return res.status(404).json({ message: "Nutzer nicht gefunden" });
+    }
 
-    res.status(200).json(timelog);
+    if (!user.timeLog) {
+      return res.status(404).json({ message: "Kein TimeLog gefunden" });
+    }
+
+    await TimeLog.findByIdAndUpdate(user.timeLog, { month: [] });
+
+    res.status(200).json({ message: "Monat gelöscht!" });
   } catch (error) {
     next(error);
   }
 };
 
 
-export const deleteTimelog = async (req, res, next) => {
+export const hardDeleteTimelog = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);
 

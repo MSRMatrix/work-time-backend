@@ -12,7 +12,7 @@ const UserSchema = new Schema(
     dayOff: {type: Number, default: 0},
     sickDay: {type: Number, default: 0},
     holiday: {type: Number, default: 0},
-    totalHours: { type: Number, default: 0 },
+    totalHours: { type: String, default: "00S 00M" },
     timeLog: { type: mongoose.Schema.Types.ObjectId, ref: "TimeLog" },
   },
   { versionKey: false, strictQuery: true }
