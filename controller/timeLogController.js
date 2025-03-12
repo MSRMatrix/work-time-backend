@@ -15,13 +15,10 @@ export const createTimelog = async (req, res, next) => {
     // Hole den Benutzer
     const user = await dataFunction(req, res, next);
 
-    // Fall 1: Wenn der Benutzer bereits ein TimeLog hat
+    // Falls ein TimeLog besteht
     if (user.timeLog) {
       const timelog = await TimeLog.findById(user.timeLog);
-
-      // Wenn das TimeLog bereits existiert, fügen wir die neuen Monate hinzu
       if (timelog) {
-        // Hinzufügen der neuen Monate
         timelog.month.push(...monthData);
 
         await timelog.save();
@@ -30,7 +27,7 @@ export const createTimelog = async (req, res, next) => {
       }
     }
 
-    // Fall 2: Wenn der Benutzer kein TimeLog hat, erstellen wir ein neues
+    // Falls kein Timelog erstellt wurde
     const newTimeLog = new TimeLog({
       userId: user._id,
       month: monthData,  // Speichern der neuen Monate
@@ -38,7 +35,6 @@ export const createTimelog = async (req, res, next) => {
       targetValue: targetValue || "00S 00M",
     });
 
-    // Setze das neue TimeLog beim Benutzer
     user.timeLog = newTimeLog._id;
 
     await newTimeLog.save();
