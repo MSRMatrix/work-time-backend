@@ -35,6 +35,8 @@ export const getUserData = async (req, res, next) => {
 export const createUser = async (req, res, next) => {
   try {
     const email = req.body.email.trim().toLowerCase();
+    const name = req.body.name.trim();
+    const company = req.body.company.trim();
 
     if (await User.findOne({ email: email })) {
       return res.status(404).json({ message: "Email already exist!" });
@@ -45,6 +47,8 @@ export const createUser = async (req, res, next) => {
     ));
 
     const user = await User.create({
+      name: name,
+      company: company,
       email: email,
       password: password,
     });
@@ -88,11 +92,17 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-export const editTime = async (req, res, next) => {
+export const editProfile = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);
-    const {sickDay, dayOff, holiday, totalHours} = req.body
+    const {sickDay, dayOff, holiday, totalHours, name, company} = req.body
 
+    if(name.trim()){
+      user.name = name.trim();
+    }
+    if(company.trim()){
+      user.company = company.trim();
+    }
     if(sickDay){
       user.sickDay = sickDay;
     }

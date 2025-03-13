@@ -168,6 +168,32 @@ if(isNaN(newStart) || isNaN(newEnd)){
   }
 };
 
+export const changeColor = async (req, res, next) => {
+  try{
+    const {backgroundColor, fontColor} = req.body;
+
+    const user = await dataFunction(req, res, next);
+    const timelog = await TimeLog.findById(user.timeLog)
+
+    
+    if(backgroundColor){
+      timelog.backgroundColor = backgroundColor;
+    }
+
+    if(fontColor){
+      timelog.fontColor = fontColor;
+    }
+
+    await timelog.save()
+
+    res.status(200).json({ message: "Farben verändert!" });
+    
+  }catch(error){
+    next(error)
+  }
+}
+
+
 export const deleteTimelog = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);

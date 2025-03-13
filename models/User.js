@@ -6,6 +6,8 @@ const TimeSheedDb = mongoose.connection.useDb(Database);
 
 const UserSchema = new Schema(
   {
+    name: { type: String, default: "Nicht verfügbar", },
+    company: { type: String, default: "Nicht verfügbar", },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },

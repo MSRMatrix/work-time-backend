@@ -26,6 +26,9 @@ const TimeLogSchema = new Schema(
     holiday: { type: String },
     actualTime: { type: String, default: "00S 00M" },
     targetValue: { type: String, default: "00S 00M" },
+    hoursFromLastMonth: { type: String, default: "00S 00M" },
+    backgroundColor: {type: String, default: "#050505"},
+    fontColor: {type: String, default: "#ffff"},
   },
   { versionKey: false, strictQuery: true }
 );
