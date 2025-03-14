@@ -12,25 +12,24 @@ export const createTimelog = async (req, res, next) => {
   try {
     const { monthData, actualTime, targetValue } = req.body;
 
-    // Hole den Benutzer
     const user = await dataFunction(req, res, next);
 
-    // Falls ein TimeLog besteht
     if (user.timeLog) {
       const timelog = await TimeLog.findById(user.timeLog);
+
       if (timelog) {
         timelog.month.push(...monthData);
-
+        timelog.hoursFromLastMonth = timelog.actualTime;
+        timelog.actualTime = "00S 00M";
         await timelog.save();
 
         return res.status(200).json(timelog);
       }
     }
 
-    // Falls kein Timelog erstellt wurde
     const newTimeLog = new TimeLog({
       userId: user._id,
-      month: monthData,  // Speichern der neuen Monate
+      month: monthData,
       actualTime: actualTime || "00S 00M",
       targetValue: targetValue || "00S 00M",
     });
@@ -41,16 +40,12 @@ export const createTimelog = async (req, res, next) => {
     await user.save();
 
     return res.status(201).json(newTimeLog);
-
   } catch (error) {
     next(error);
   }
 };
 
-
-
 function splitTime(result, user, timelog) {
-
   const userHours = user.totalHours.split(" ");
   const timelogHours = timelog.actualTime.split(" ");
 
@@ -80,11 +75,9 @@ function splitTime(result, user, timelog) {
   return splitResult;
 }
 
-
 export const updateTimelog = async (req, res, next) => {
   try {
-    
-    const {newLog, result} = req.body;
+    const { newLog, result } = req.body;
     const user = await dataFunction(req, res, next);
     const timelog = await TimeLog.findById(user.timeLog);
     const splitResult = splitTime(result, user, timelog);
@@ -94,9 +87,9 @@ export const updateTimelog = async (req, res, next) => {
     timelog.actualTime = splitResult.actual;
 
     await timelog.save();
-    await user.save()
+    await user.save();
 
-    res.status(200).json({message: "Timelog updated!"});
+    res.status(200).json({ message: "Timelog updated!" });
   } catch (error) {
     next(error);
   }
@@ -105,7 +98,7 @@ export const updateTimelog = async (req, res, next) => {
 export const checkFunction = async (req, res, next) => {
   try {
     const { name, date } = req.body;
-    
+
     const user = await dataFunction(req, res, next);
     const timelog = await TimeLog.findById(user.timeLog);
 
@@ -114,7 +107,6 @@ export const checkFunction = async (req, res, next) => {
     }
 
     const dayEntry = timelog.month.find((item) => item.date === date);
-
 
     const totalStart = parseFloat(user.totalHours.split(" ")[0]);
     const totalEnd = parseFloat(user.totalHours.split(" ")[1]);
@@ -125,34 +117,32 @@ export const checkFunction = async (req, res, next) => {
     let newStart = totalStart - timeStart;
     let newEnd = totalEnd - timeEnd;
 
-if (newEnd < 0) {
-  newStart -= 1;
-  newEnd += 60;
-}
+    if (newEnd < 0) {
+      newStart -= 1;
+      newEnd += 60;
+    }
 
-const formatTime = (time) => (time < 10 ? `0${time}` : `${time}`);
+    const formatTime = (time) => (time < 10 ? `0${time}` : `${time}`);
 
+    let result = `${formatTime(newStart)}S ${formatTime(newEnd)}M`;
 
+    if (isNaN(newStart) || isNaN(newEnd)) {
+      result = user.totalHours;
+    }
 
-let result = `${formatTime(newStart)}S ${formatTime(newEnd)}M`;
-
-if(isNaN(newStart) || isNaN(newEnd)){
-  result = user.totalHours;
-}
-
-    dayEntry.startWork = ""
-    dayEntry.endWork = ""
-    dayEntry.startBreak = ""
-    dayEntry.endBreak = ""
-    dayEntry.totalTime = ""
+    dayEntry.startWork = "";
+    dayEntry.endWork = "";
+    dayEntry.startBreak = "";
+    dayEntry.endBreak = "";
+    dayEntry.totalTime = "";
 
     if (!dayEntry) {
       return res.status(404).json({ message: "Datum nicht gefunden" });
     }
 
     if (["dayOff", "sickDay", "holiday"].includes(name)) {
-      dayEntry[name] = !dayEntry[name]; 
-      user[name] = dayEntry[name] ? user[name] + 1 : user[name] -  1
+      dayEntry[name] = !dayEntry[name];
+      user[name] = dayEntry[name] ? user[name] + 1 : user[name] - 1;
     } else {
       return res.status(400).json({ message: "Ungültiger Toggle-Name" });
     }
@@ -160,7 +150,7 @@ if(isNaN(newStart) || isNaN(newEnd)){
     user.totalHours = result;
     timelog.markModified("month");
     await timelog.save();
-    await user.save()
+    await user.save();
 
     res.status(200).json(timelog);
   } catch (error) {
@@ -169,30 +159,27 @@ if(isNaN(newStart) || isNaN(newEnd)){
 };
 
 export const changeColor = async (req, res, next) => {
-  try{
-    const {backgroundColor, fontColor} = req.body;
+  try {
+    const { backgroundColor, fontColor } = req.body;
 
     const user = await dataFunction(req, res, next);
-    const timelog = await TimeLog.findById(user.timeLog)
+    const timelog = await TimeLog.findById(user.timeLog);
 
-    
-    if(backgroundColor){
+    if (backgroundColor) {
       timelog.backgroundColor = backgroundColor;
     }
 
-    if(fontColor){
+    if (fontColor) {
       timelog.fontColor = fontColor;
     }
 
-    await timelog.save()
+    await timelog.save();
 
     res.status(200).json({ message: "Farben verändert!" });
-    
-  }catch(error){
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
-
+};
 
 export const deleteTimelog = async (req, res, next) => {
   try {
@@ -213,7 +200,6 @@ export const deleteTimelog = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const hardDeleteTimelog = async (req, res, next) => {
   try {
