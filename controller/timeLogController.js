@@ -185,7 +185,7 @@ export const deleteTimelog = async (req, res, next) => {
     if (!user.timeLog) {
       return res.status(404).json({ message: "Kein TimeLog gefunden" });
     }
-
+    await TimeLog.findByIdAndUpdate(user.timeLog, {actualTime: "00S 00M"})
     await TimeLog.findByIdAndUpdate(user.timeLog, { month: [] });
 
     res.status(200).json({ message: "Monat gelöscht!" });
