@@ -21,11 +21,11 @@ export const getUserData = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const timelog = await TimeLog.findById(user.timeLog)
+    const timelog = await TimeLog.findById(user.timeLog);
 
     res.status(200).json({
       user: user,
-      timelog: timelog
+      timelog: timelog,
     });
   } catch (error) {
     next(error);
@@ -95,30 +95,52 @@ export const deleteUser = async (req, res, next) => {
 export const editProfile = async (req, res, next) => {
   try {
     const user = await dataFunction(req, res, next);
-    const {sickDay, dayOff, holiday, totalHours, name, company} = req.body
+    const { sickDay, dayOff, holiday, totalHours, name, company } = req.body;
 
-    if(name.trim()){
+    if (name.trim()) {
       user.name = name.trim();
     }
-    if(company.trim()){
+    if (company.trim()) {
       user.company = company.trim();
     }
-    if(sickDay){
+    if (sickDay) {
       user.sickDay = sickDay;
     }
-    if(dayOff){
+    if (dayOff) {
       user.dayOff = dayOff;
     }
-    if(holiday){
+    if (holiday) {
       user.holiday = holiday;
     }
-    if(totalHours){
+    if (totalHours) {
       user.totalHours = totalHours;
     }
 
     await user.save();
 
     res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const weekendFunction = async (req, res, next) => {
+  try {
+    const { name, value } = req.body;
+
+    const user = await dataFunction(req, res, next);
+    let weekend = user.weekend;
+
+    if (weekend.includes(name)) {
+      weekend = weekend.filter((day) => day !== name);
+    } else {
+      weekend.push(name);
+    }
+
+    user.weekend = weekend;
+    await user.save();
+
+    res.status(200).json({message: "Wochenende wurde geändert!"});
   } catch (error) {
     next(error);
   }

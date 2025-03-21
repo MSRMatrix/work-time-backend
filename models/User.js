@@ -11,6 +11,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
+    weekend: { type: [String], default: ["samstag", "sonntag"] },
     dayOff: {type: Number, default: 0},
     sickDay: {type: Number, default: 0},
     holiday: {type: Number, default: 0},

@@ -1,6 +1,6 @@
 import express from "express"
 
-import { authorize, createUser, deleteUser, editProfile, getData, getUserData, login, logout, updateUser } from "../controller/userController.js";
+import { authorize, createUser, deleteUser, editProfile, getData, getUserData, login, logout, updateUser, weekendFunction } from "../controller/userController.js";
 import { userUpdateValidator, userValidator, validateRequest } from "../middlewares/validator/validatorFunctions.js";
 
 const router = express.Router()
@@ -10,6 +10,9 @@ router
 
 router
 .route("/time").patch(editProfile)
+
+router
+.route("/weekend").patch(weekendFunction)
 
 router
 .route("/").post(userValidator, validateRequest , createUser)
